@@ -24,9 +24,9 @@ st.markdown("""
     header, footer, #MainMenu {visibility: hidden;}
     
     .main .block-container {
-        padding-top: 4rem;
+        padding-top: 3.5rem;
         padding-bottom: 2rem;
-        max-width: 560px;
+        max-width: 520px;
     }
     
     /* Header */
@@ -34,46 +34,46 @@ st.markdown("""
         display: flex;
         align-items: center;
         justify-content: center;
-        gap: 12px;
-        margin-bottom: 0.6rem;
+        gap: 10px;
+        margin-bottom: 0.5rem;
     }
     .header svg {
-        width: 40px;
-        height: 40px;
+        width: 34px;
+        height: 34px;
         stroke: #3b82f6;
         stroke-width: 2;
         fill: none;
     }
     .title {
-        font-size: 2rem;
+        font-size: 1.7rem;
         font-weight: 800;
         color: #f8fafc;
         letter-spacing: -0.5px;
         margin: 0;
     }
     .subtitle {
-        font-size: 1rem;
+        font-size: 0.9rem;
         color: #64748b;
         text-align: center;
-        margin-bottom: 2rem;
+        margin-bottom: 1.8rem;
         font-weight: 400;
     }
     
-    /* Single main card */
+    /* Main card */
     .main-card {
         background: #111827;
         border: 1px solid #1f2937;
         border-radius: 16px;
-        padding: 2rem 1.8rem;
+        padding: 1.5rem;
         box-shadow: 0 20px 40px rgba(0,0,0,0.4);
     }
     
-    /* File uploader inside card */
+    /* File uploader */
     [data-testid="stFileUploader"] {
         background: #0a0f1c;
         border: 1.5px dashed #334155;
         border-radius: 12px;
-        padding: 1.2rem;
+        padding: 1rem;
         transition: all 0.25s ease;
     }
     [data-testid="stFileUploader"]:hover {
@@ -83,47 +83,54 @@ st.markdown("""
     [data-testid="stFileUploader"] label {
         color: #94a3b8 !important;
     }
-    
-    /* Remove extra spacing */
     [data-testid="stFileUploader"] > div {
         padding: 0 !important;
+    }
+    
+    /* Image container - center and small */
+    .image-wrapper {
+        display: flex;
+        justify-content: center;
+        margin: 1.2rem 0;
+    }
+    .image-wrapper img {
+        max-width: 200px !important;
+        width: 100% !important;
+        height: auto !important;
+        border-radius: 12px;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.4);
+        border: 1px solid #1f2937;
     }
     
     /* Result box */
     .result-box {
         background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
-        border-radius: 14px;
-        padding: 1.5rem;
+        border-radius: 12px;
+        padding: 1.1rem;
         text-align: center;
-        margin-top: 1.5rem;
-        box-shadow: 0 10px 30px rgba(37, 99, 235, 0.3);
+        margin-top: 1rem;
+        box-shadow: 0 8px 25px rgba(37, 99, 235, 0.3);
     }
     .result-label {
         color: #bfdbfe;
-        font-size: 0.75rem;
+        font-size: 0.7rem;
         text-transform: uppercase;
         letter-spacing: 2px;
-        margin-bottom: 0.5rem;
+        margin-bottom: 0.3rem;
         font-weight: 600;
     }
     .result-value {
         color: #ffffff;
-        font-size: 1.8rem;
+        font-size: 1.4rem;
         font-weight: 800;
         text-transform: capitalize;
         margin-bottom: 0.2rem;
+        line-height: 1.2;
     }
     .result-confidence {
         color: #dbeafe;
-        font-size: 0.9rem;
+        font-size: 0.8rem;
         font-weight: 500;
-    }
-    
-    /* Image */
-    [data-testid="stImage"] img {
-        border-radius: 10px;
-        box-shadow: 0 6px 20px rgba(0,0,0,0.4);
-        margin-top: 1rem;
     }
     
     /* Spinner */
@@ -131,37 +138,31 @@ st.markdown("""
         border-top-color: #3b82f6 !important;
     }
     
-    /* Divider */
-    hr {
-        border-color: #1f2937;
-        margin: 2rem 0 1.5rem 0;
-    }
-    
     /* Footer */
     .footer {
         text-align: center;
-        margin-top: 2rem;
-        padding-top: 1.5rem;
+        margin-top: 1.8rem;
+        padding-top: 1.2rem;
         border-top: 1px solid #1f2937;
     }
     .footer-text {
         color: #475569;
-        font-size: 0.8rem;
-        margin-bottom: 1rem;
+        font-size: 0.75rem;
+        margin-bottom: 0.9rem;
     }
     .social-links {
         display: flex;
         justify-content: center;
-        gap: 1.5rem;
+        gap: 1.2rem;
         flex-wrap: wrap;
     }
     .social-link {
         display: flex;
         align-items: center;
-        gap: 6px;
+        gap: 5px;
         color: #94a3b8;
         text-decoration: none;
-        font-size: 0.85rem;
+        font-size: 0.8rem;
         font-weight: 500;
         transition: color 0.2s ease;
     }
@@ -169,11 +170,39 @@ st.markdown("""
         color: #3b82f6;
     }
     .social-link svg {
-        width: 16px;
-        height: 16px;
+        width: 14px;
+        height: 14px;
         stroke: currentColor;
         stroke-width: 2;
         fill: none;
+    }
+    
+    /* Mobile responsive */
+    @media (max-width: 640px) {
+        .main .block-container {
+            padding-top: 2rem;
+            padding-left: 1rem;
+            padding-right: 1rem;
+        }
+        .title {
+            font-size: 1.4rem;
+        }
+        .header svg {
+            width: 28px;
+            height: 28px;
+        }
+        .main-card {
+            padding: 1.2rem;
+        }
+        .image-wrapper img {
+            max-width: 160px !important;
+        }
+        .result-value {
+            font-size: 1.2rem;
+        }
+        .social-links {
+            gap: 1rem;
+        }
     }
 </style>
 """, unsafe_allow_html=True)
@@ -235,8 +264,20 @@ if uploaded_file is not None:
         pred_class = classes[similarity.argmax().item()]
         confidence = similarity.max().item() * 100
     
-    st.image(image, use_column_width=True)
+    # Image centered and small
+    import base64
+    from io import BytesIO
+    buffered = BytesIO()
+    image.save(buffered, format="PNG")
+    img_str = base64.b64encode(buffered.getvalue()).decode()
     
+    st.markdown(f'''
+    <div class="image-wrapper">
+        <img src="data:image/png;base64,{img_str}" />
+    </div>
+    ''', unsafe_allow_html=True)
+    
+    # Result box
     st.markdown(f'''
     <div class="result-box">
         <div class="result-label">Detected</div>
