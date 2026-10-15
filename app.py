@@ -3,6 +3,8 @@ import torch
 import open_clip
 import numpy as np
 from PIL import Image
+import base64
+from io import BytesIO
 
 # ---------- Page Config ----------
 st.set_page_config(
@@ -15,18 +17,16 @@ st.set_page_config(
 # ---------- CSS ----------
 st.markdown("""
 <style>
-    /* Background */
     .stApp {
         background: #0a0f1c;
     }
     
-    /* Hide Streamlit chrome */
     header, footer, #MainMenu {visibility: hidden;}
     
     .main .block-container {
-        padding-top: 3.5rem;
+        padding-top: 3rem;
         padding-bottom: 2rem;
-        max-width: 520px;
+        max-width: 640px;
     }
     
     /* Header */
@@ -55,7 +55,7 @@ st.markdown("""
         font-size: 0.9rem;
         color: #64748b;
         text-align: center;
-        margin-bottom: 1.8rem;
+        margin-bottom: 1.5rem;
         font-weight: 400;
     }
     
@@ -64,16 +64,17 @@ st.markdown("""
         background: #111827;
         border: 1px solid #1f2937;
         border-radius: 16px;
-        padding: 1.5rem;
+        padding: 1.2rem;
         box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+        margin-bottom: 1.5rem;
     }
     
-    /* File uploader */
+    /* Compact uploader */
     [data-testid="stFileUploader"] {
         background: #0a0f1c;
         border: 1.5px dashed #334155;
-        border-radius: 12px;
-        padding: 1rem;
+        border-radius: 10px;
+        padding: 0.6rem 1rem;
         transition: all 0.25s ease;
     }
     [data-testid="stFileUploader"]:hover {
@@ -82,55 +83,63 @@ st.markdown("""
     }
     [data-testid="stFileUploader"] label {
         color: #94a3b8 !important;
+        font-size: 0.85rem !important;
     }
     [data-testid="stFileUploader"] > div {
         padding: 0 !important;
     }
-    
-    /* Image container - center and small */
-    .image-wrapper {
-        display: flex;
-        justify-content: center;
-        margin: 1.2rem 0;
-    }
-    .image-wrapper img {
-        max-width: 200px !important;
-        width: 100% !important;
-        height: auto !important;
-        border-radius: 12px;
-        box-shadow: 0 8px 25px rgba(0,0,0,0.4);
-        border: 1px solid #1f2937;
+    [data-testid="stFileUploader"] section {
+        padding: 0.5rem !important;
+        min-height: auto !important;
     }
     
-    /* Result box */
-    .result-box {
+    /* Result panel - right side */
+    .result-panel {
         background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
-        border-radius: 12px;
-        padding: 1.1rem;
+        border-radius: 14px;
+        padding: 1.5rem 1rem;
         text-align: center;
-        margin-top: 1rem;
-        box-shadow: 0 8px 25px rgba(37, 99, 235, 0.3);
+        box-shadow: 0 10px 30px rgba(37, 99, 235, 0.3);
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        min-height: 200px;
     }
     .result-label {
         color: #bfdbfe;
         font-size: 0.7rem;
         text-transform: uppercase;
         letter-spacing: 2px;
-        margin-bottom: 0.3rem;
+        margin-bottom: 0.5rem;
         font-weight: 600;
     }
     .result-value {
         color: #ffffff;
-        font-size: 1.4rem;
+        font-size: 1.6rem;
         font-weight: 800;
         text-transform: capitalize;
-        margin-bottom: 0.2rem;
         line-height: 1.2;
+        word-break: break-word;
     }
-    .result-confidence {
-        color: #dbeafe;
-        font-size: 0.8rem;
-        font-weight: 500;
+    
+    /* Image wrapper - left side */
+    .image-wrapper {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100%;
+        min-height: 200px;
+    }
+    .image-wrapper img {
+        max-width: 100%;
+        max-height: 200px;
+        width: auto;
+        height: auto;
+        border-radius: 12px;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.4);
+        border: 1px solid #1f2937;
     }
     
     /* Spinner */
@@ -177,32 +186,16 @@ st.markdown("""
         fill: none;
     }
     
-    /* Mobile responsive */
+    /* Mobile */
     @media (max-width: 640px) {
         .main .block-container {
             padding-top: 2rem;
             padding-left: 1rem;
             padding-right: 1rem;
         }
-        .title {
-            font-size: 1.4rem;
-        }
-        .header svg {
-            width: 28px;
-            height: 28px;
-        }
-        .main-card {
-            padding: 1.2rem;
-        }
-        .image-wrapper img {
-            max-width: 160px !important;
-        }
-        .result-value {
-            font-size: 1.2rem;
-        }
-        .social-links {
-            gap: 1rem;
-        }
+        .title { font-size: 1.4rem; }
+        .header svg { width: 28px; height: 28px; }
+        .result-value { font-size: 1.3rem; }
     }
 </style>
 """, unsafe_allow_html=True)
@@ -244,11 +237,12 @@ with st.spinner("Loading model..."):
     model, preprocess, tokenizer = load_model()
     text_features = encode_classes()
 
-# ---------- Main Card ----------
+# ---------- Uploader Card ----------
 st.markdown('<div class="main-card">', unsafe_allow_html=True)
-
 uploaded_file = st.file_uploader("Choose an image...", type=["jpg", "jpeg", "png"], label_visibility="collapsed")
+st.markdown('</div>', unsafe_allow_html=True)
 
+# ---------- Result Area: Left Image, Right Result ----------
 if uploaded_file is not None:
     image = Image.open(uploaded_file).convert("RGB")
     
@@ -262,31 +256,28 @@ if uploaded_file is not None:
         
         similarity = (image_features @ text_features.T).softmax(dim=-1)
         pred_class = classes[similarity.argmax().item()]
-        confidence = similarity.max().item() * 100
     
-    # Image centered and small
-    import base64
-    from io import BytesIO
+    # Convert image to base64
     buffered = BytesIO()
     image.save(buffered, format="PNG")
     img_str = base64.b64encode(buffered.getvalue()).decode()
     
-    st.markdown(f'''
-    <div class="image-wrapper">
-        <img src="data:image/png;base64,{img_str}" />
-    </div>
-    ''', unsafe_allow_html=True)
+    col1, col2 = st.columns([1, 1], gap="medium")
     
-    # Result box
-    st.markdown(f'''
-    <div class="result-box">
-        <div class="result-label">Detected</div>
-        <div class="result-value">{pred_class}</div>
-        <div class="result-confidence">Confidence: {confidence:.2f}%</div>
-    </div>
-    ''', unsafe_allow_html=True)
-
-st.markdown('</div>', unsafe_allow_html=True)
+    with col1:
+        st.markdown(f'''
+        <div class="image-wrapper">
+            <img src="data:image/png;base64,{img_str}" />
+        </div>
+        ''', unsafe_allow_html=True)
+    
+    with col2:
+        st.markdown(f'''
+        <div class="result-panel">
+            <div class="result-label">Detected</div>
+            <div class="result-value">{pred_class}</div>
+        </div>
+        ''', unsafe_allow_html=True)
 
 # ---------- Footer ----------
 st.markdown('''
