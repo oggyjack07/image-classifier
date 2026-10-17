@@ -290,7 +290,7 @@ st.markdown('''
             </svg>
             GitHub
         </a>
-        <a class="social-link" href="https://suraj-verma-portfolio.vercel.app/" target="_blank">
+        <a class="social-link" href="https://ayuushss-portfolio.vercel.app/" target="_blank">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
                 <circle cx="12" cy="12" r="10"/>
                 <line x1="2" y1="12" x2="22" y2="12"/>
